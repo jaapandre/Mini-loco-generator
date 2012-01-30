@@ -20,6 +20,11 @@ $resultSize=28;//veelvoud van 4
 //display form if no input
 if (empty($_REQUEST['opgave'])){
 ?>
+This is software as it is, distributed under the terms of the GNU GPL.<br>
+If you want to contribute or have suggestions, please visit:<br>
+<a href="https://github.com/jaapandre/Mini-loco-generator">https://github.com/jaapandre/Mini-loco-generator</a><br>
+I hope it is helpfull, please let me know at <a href=mailto:j.dehoop@data-assist.nl>j.dehoop@data-assist.nl</a><br>
+<hr>
 <form method=post>
 <table><tr>
 <td></td><td>opgave</td><td>uitkomst</td>
