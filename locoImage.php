@@ -52,7 +52,7 @@ function createTile($size=200, $number=1) {
 	}
 
 	imagefilledpolygon( $canvas, $values, 4,  $color );
-	if (!imagepng($canvas, "$number.png")){
+	if (!imagepng($canvas, "images/$number.png")){
 		echo "unable to create $number.png, size: $size, number: $number<br>";
 	}
 	imagedestroy($canvas);

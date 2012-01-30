@@ -156,7 +156,7 @@ function showResultPreview($layout) {
 			echo "</tr><tr>\n";
 		}
 		createTile($resultSize,$value);
-		echo "<td class=\"result\"><img src=$value.png></td>\n";
+		echo "<td class=\"result\"><img src=images/$value.png></td>\n";
 		$count++;
 	}
 	echo "</tr></table>\n";
