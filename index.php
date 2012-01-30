@@ -57,20 +57,6 @@ for ($i=1;$i<=$numberOfExercises;$i++) {
 	$opgave[$tempOpgave]=$tempUitkomst;
 }
 
-//add here more layout, on which position should the tile come, first is the tile number, second one the position
-//add 24 layouts for loco with 24 tiles
-$layouts[]=array(1=>9, 2=>8,3=>11,4=>10,5=>5,6=>7,7=>4,8=>2,9=>12,10=>3,11=>6,12=>1);
-$layouts[]=array(1=>11, 2=>10,3=>7,4=>8,5=>1,6=>9,7=>2,8=>4,9=>12,10=>5,11=>6,12=>3);
-$layouts[]=array(1=>7, 2=>11,3=>9,4=>8,5=>4,6=>12,7=>1,8=>6,9=>10,10=>2,11=>3,12=>5);
-$layouts[]=array(1=>2, 2=>4,3=>11,4=>7,5=>5,6=>9,7=>1,8=>10,9=>6,10=>8,11=>12,12=>3);
-$layouts[]=array(1=>6, 2=>2,3=>3,4=>5,5=>9,6=>1,7=>11,8=>8,9=>4,10=>12,11=>10,12=>7);
-//$layouts[]=array(1=>, 2=>,3=>,4=>,5=>,6=>,7=>,8=>,9=>,10=>,11=>,12=>);
-
-//choose a layout
-
-shuffle($layouts);
-$layout=$layouts[0];
-
 
 //show the page header
 echo "<html><head>
@@ -84,12 +70,11 @@ td.antwoorden {
 	height:150px; 
 	 text-align:center;
 }
-
-
 </style>
-
-
 </head><body>\n";
+
+$layout=getLayout();
+
 
 //show the opgave
 $opgaveKeys=array_keys($opgave);
@@ -109,25 +94,7 @@ echo "</tr></table>\n\n";
 //echo "<br><br><br><br>";
 
 //show result
-$layoutFlip=array_flip($layout);
-ksort($layoutFlip);
-//flip rows..
-$upperRow=array_slice($layoutFlip,6,6);
-$lowerRow=array_slice($layoutFlip,0,6);
-$allSlices=array_merge($upperRow,$lowerRow);
-$count=0;
-echo "<table border=1><tr>\n";
-foreach ($allSlices	 as $key=>$value) {
-//	$value--;
-	if (is_int($count/6)){
-		echo "</tr><tr>\n";
-	}
-	createTile($resultSize,$value);
-	echo "<td class=\"result\"><img src=$value.png></td>\n";
-	$count++;
-}
-echo "</tr></table>\n";
-
+showResultPreview($layout);
 
 
 //show the answers 
@@ -149,4 +116,45 @@ foreach ($layoutFlip as $key=>$value) {
 echo "</tr></table>\n";
 echo "</body></html>\n";
 }
+
+function getLayout ($id=null){
+	//add here more layout, on which position should the tile come, first is the tile number, second one the position
+	//add 24 layouts for loco with 24 tiles
+	$layouts[]=array(1=>9, 2=>8,3=>11,4=>10,5=>5,6=>7,7=>4,8=>2,9=>12,10=>3,11=>6,12=>1);
+	$layouts[]=array(1=>11, 2=>10,3=>7,4=>8,5=>1,6=>9,7=>2,8=>4,9=>12,10=>5,11=>6,12=>3);
+	$layouts[]=array(1=>7, 2=>11,3=>9,4=>8,5=>4,6=>12,7=>1,8=>6,9=>10,10=>2,11=>3,12=>5);
+	$layouts[]=array(1=>2, 2=>4,3=>11,4=>7,5=>5,6=>9,7=>1,8=>10,9=>6,10=>8,11=>12,12=>3);
+	$layouts[]=array(1=>6, 2=>2,3=>3,4=>5,5=>9,6=>1,7=>11,8=>8,9=>4,10=>12,11=>10,12=>7);
+	//$layouts[]=array(1=>, 2=>,3=>,4=>,5=>,6=>,7=>,8=>,9=>,10=>,11=>,12=>);
+	
+	//choose a layout
+	
+	shuffle($layouts);
+	$layout=$layouts[0];
+	return $layout;
+}
+
+function showResultPreview($layout) {
+	global $resultSize;//veelvoud van 4
+	$layoutFlip=array_flip($layout);
+	ksort($layoutFlip);
+	//flip rows..
+	$upperRow=array_slice($layoutFlip,6,6);
+	$lowerRow=array_slice($layoutFlip,0,6);
+	$allSlices=array_merge($upperRow,$lowerRow);
+	$count=0;
+	echo "<table border=1><tr>\n";
+	foreach ($allSlices	 as $key=>$value) {
+		//	$value--;
+		if (is_int($count/6)){
+			echo "</tr><tr>\n";
+		}
+		createTile($resultSize,$value);
+		echo "<td class=\"result\"><img src=$value.png></td>\n";
+		$count++;
+	}
+	echo "</tr></table>\n";
+} 
+
+
 ?>
