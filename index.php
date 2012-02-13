@@ -18,40 +18,43 @@ require 'locoImage.php';
 
 $numberOfExercises=12;
 $resultSize=28;//veelvoud van 4
+$content = '';
 //display form if no input
 if (empty($_REQUEST['opgave'])){
-?>
+
+    $content .= '
 <table border=0 width=100%><tr><td width="80%">This is software as it is, distributed under the terms of the GNU GPL.<br>
 If you want to contribute or have suggestions, please visit:<br>
 <a href="https://github.com/jaapandre/Mini-loco-generator">https://github.com/jaapandre/Mini-loco-generator</a><br>
 I hope it is helpfull, please let me know at <a href=mailto:j.dehoop@data-assist.nl>j.dehoop@data-assist.nl</a><br>
 </td><td align=right>
-<?php
+';
+
 $layout=getLayout();
-showResultPreview($layout);
-?>
+$content .= showResultPreview($layout);
+$content .= '
 </td></tr></table>
 <hr>
 <form method=post>
 <table><tr>
 <td></td><td>opgave</td><td>uitkomst</td>
 </tr>
-<?php
+';
+
 for ($i=1;$i<=$numberOfExercises;$i++) {
-$str= <<<EOF
+    $content .= <<<EOF
 <tr>
 <td>$i</td>
 <td><input type="open" name="opgave[$i]"</td>
 <td><input type="open" name="uitkomst[$i]"</td>
 </tr>
 EOF;
-echo $str;
 }
-?>
+    $content .= '
 </tr>
 </table>
 <input type="submit">
-<?php
+';
 
 }else {
 //fill array with opgaves
@@ -66,63 +69,52 @@ for ($i=1;$i<=$numberOfExercises;$i++) {
 
 
 //show the page header
-echo "<html><head>
-<style >
-td.opgave {
-	width: 251px; 
-	height:100px; 
-}
-td.antwoorden {
-	width: 251px; 
-	height:150px; 
-	 text-align:center;
-}
-</style>
-</head><body>\n";
-
 $layout=getLayout();
 
 
 //show the opgave
 $opgaveKeys=array_keys($opgave);
 $count=0;
-echo "<table border=1><tr>\n";
+$content .= '';
+$content .= "<table border=1><tr>\n";
 foreach ($layout as $key=>$value) {
 	$key--;
 	$count++;
 	if ($count==7){
-		echo "</tr><tr>\n";
+		$content .= "</tr><tr>\n";
 	}
-	echo "<td class=\"opgave\">";
-	echo "<font size=-1>$count)</font><br><br>";
-	echo "<center>$opgaveKeys[$key]</center><br><br></td>\n";
+	$content .= "<td class=\"opgave\">";
+	$content .= "<font size=-1>$count)</font><br><br>";
+	$content .= "<center>$opgaveKeys[$key]</center><br><br></td>\n";
 }
-echo "</tr></table>\n\n";
-//echo "<br><br><br><br>";
+$content .= "</tr></table>\n\n";
+//$content .= "<br><br><br><br>";
 
 //show result
-showResultPreview($layout);
+    $content .= showResultPreview($layout);
 
 
 //show the answers 
 $layoutFlip=array_flip($layout);
 ksort($layoutFlip);
 $count=0;
-echo "<table border=1><tr>\n";
+$content .= "<table border=1><tr>\n";
 foreach ($layoutFlip as $key=>$value) {
 	$value--;
 	$opgaveKey=$opgaveKeys[$value];
 	if (is_int($count/6)){
-		echo "</tr><tr>\n";
+		$content .= "</tr><tr>\n";
 	}
-	echo "<td class=\"antwoorden\">$opgave[$opgaveKey]</td>\n";
+	$content .= "<td class=\"antwoorden\">$opgave[$opgaveKey]</td>\n";
 	$count++;
 }
 
 //show page footer
-echo "</tr></table>\n";
-echo "</body></html>\n";
+$content .= "</tr></table>\n";
+$content .= "</body></html>\n";
+
 }
+echo $content;
 
 function getLayout ($id=null){
 	//add here more layout, on which position should the tile come, first is the tile number, second one the position
@@ -143,24 +135,31 @@ function getLayout ($id=null){
 
 function showResultPreview($layout) {
 	global $resultSize;//veelvoud van 4
-	$layoutFlip=array_flip($layout);
+	$content = '';
+
+    $layoutFlip=array_flip($layout);
 	ksort($layoutFlip);
 	//flip rows..
 	$upperRow=array_slice($layoutFlip,6,6);
 	$lowerRow=array_slice($layoutFlip,0,6);
 	$allSlices=array_merge($upperRow,$lowerRow);
 	$count=0;
-	echo "<table border=1><tr>\n";
-	foreach ($allSlices	 as $key=>$value) {
+
+    $content .= "<table border=1><tr>\n";
+
+    foreach ($allSlices	 as $key=>$value) {
 		//	$value--;
 		if (is_int($count/6)){
-			echo "</tr><tr>\n";
+			$content .= "</tr><tr>\n";
 		}
 		createTile($resultSize,$value);
-		echo "<td class=\"result\"><img src=images/$value.png></td>\n";
+		$content .= "<td class=\"result\"><img src=images/$value.png></td>\n";
 		$count++;
 	}
-	echo "</tr></table>\n";
+
+	$content .= "</tr></table>\n";
+
+    return $content;
 } 
 
 
