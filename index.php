@@ -1,7 +1,4 @@
 <?php
-//disable error reporting for now
-ini_set('error_reporting', null);
-
 /*
 This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,7 +13,8 @@ This program is free software: you can redistribute it and/or modify
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-include ("locoImage.php");
+require 'errorHandling.php';
+require 'locoImage.php';
 
 $numberOfExercises=12;
 $resultSize=28;//veelvoud van 4
