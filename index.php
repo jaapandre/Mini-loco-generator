@@ -1,6 +1,6 @@
 <?php
 /*
-This program is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
@@ -15,106 +15,83 @@ This program is free software: you can redistribute it and/or modify
 */
 require 'errorHandling.php';
 require 'locoImage.php';
+require 'class.Template.php';
 
 $numberOfExercises=12;
-$resultSize=28;//veelvoud van 4
-$content = '';
-//display form if no input
-if (empty($_REQUEST['opgave'])){
+$resultSize=28; // multiple of 4
 
-    $content .= '
-<table border=0 width=100%><tr><td width="80%">This is software as it is, distributed under the terms of the GNU GPL.<br>
-If you want to contribute or have suggestions, please visit:<br>
-<a href="https://github.com/jaapandre/Mini-loco-generator">https://github.com/jaapandre/Mini-loco-generator</a><br>
-I hope it is helpfull, please let me know at <a href=mailto:j.dehoop@data-assist.nl>j.dehoop@data-assist.nl</a><br>
-</td><td align=right>
-';
 
 $layout=getLayout();
-$content .= showResultPreview($layout);
-$content .= '
-</td></tr></table>
-<hr>
-<form method=post>
-<table><tr>
-<td></td><td>opgave</td><td>uitkomst</td>
-</tr>
-';
 
-for ($i=1;$i<=$numberOfExercises;$i++) {
-    $content .= <<<EOF
-<tr>
-<td>$i</td>
-<td><input type="open" name="opgave[$i]"</td>
-<td><input type="open" name="uitkomst[$i]"</td>
-</tr>
-EOF;
-}
-    $content .= '
-</tr>
-</table>
-<input type="submit">
-';
+//------------------------------------------------------------------------------
+// Load Template
+$template = \Potherca\Template::fromFile('index.template.html');
+// Build Relevant Content Blocks
 
-}else {
-//fill array with opgaves
-$opgaveTemp=$_REQUEST['opgave'];
-$uitkomstTemp=$_REQUEST['uitkomst'];
+function fetchAssignmentArray($numberOfExercises)
+{ //fill array with assignments
+    $assignmentTemp = $_POST['assignment'];
+    $outcomeTemp = $_POST['outcome'];
 
-for ($i=1;$i<=$numberOfExercises;$i++) {
-	$tempOpgave=$opgaveTemp[$i];
-	$tempUitkomst=$uitkomstTemp[$i];
-	$opgave[$tempOpgave]=$tempUitkomst;
+    $assignment = array();
+    for ($i = 1; $i <= $numberOfExercises; $i++) {
+        $tempAssignment = $assignmentTemp[$i];
+        $tempOutcome = $outcomeTemp[$i];
+        //@FIXME: This creates a bug where, if two or more assignment have the same value, we overwrite $assignmentKeys and reduce the actual amount of keys available later on (also messing up the order.
+        $assignment[$tempAssignment] = $tempOutcome;
+    }
+    return $assignment; #for
 }
 
+if (empty($_POST['assignment'])){
+    //no input so display form
 
-//show the page header
-$layout=getLayout();
+    // Remove Views we don't want
+    $template->getBody()->removeChild(
+        $template->getElementsByClassName('result-view')->item(0)
+    );
+
+    // Fetch nodes we'll work with
+    $resultTable = $template->getElementsByClassName('result-preview')->item(0);
+    $assignmentTable = $template->getElementsByClassName('assignment')->item(0);
+
+    // Build preview
+    buildResultPreview($layout, $resultSize, $resultTable, $template);
+
+    // Add Assignment Form to Template
+    buildAssignmentContent($numberOfExercises, $template, $assignmentTable);
+} else {
+    //input so display result
+
+    // Remove Views we don't want
+    $template->getBody()->removeChild(
+        $template->getElementsByClassName('form-view')->item(0)
+    );
+
+    // Fetch nodes we'll work with
+    $assignmentResultTable = $template->getElementsByClassName('assignment-result')->item(0);
+    $resultTable = $template->getElementsByClassName('images-result')->item(0);
+    $answersResultTable = $template->getElementsByClassName('answers-result')->item(0);
 
 
-//show the opgave
-$opgaveKeys=array_keys($opgave);
-$count=0;
-$content .= '';
-$content .= "<table border=1><tr>\n";
-foreach ($layout as $key=>$value) {
-	$key--;
-	$count++;
-	if ($count==7){
-		$content .= "</tr><tr>\n";
-	}
-	$content .= "<td class=\"opgave\">";
-	$content .= "<font size=-1>$count)</font><br><br>";
-	$content .= "<center>$opgaveKeys[$key]</center><br><br></td>\n";
-}
-$content .= "</tr></table>\n\n";
-//$content .= "<br><br><br><br>";
+    $assignment = fetchAssignmentArray($numberOfExercises);
+    $assignmentKeys = array_keys($assignment);
 
-//show result
-    $content .= showResultPreview($layout);
+    // Add Assignment Result to Template
+    buildAssignmentResult($assignmentResultTable, $template, $layout, $assignmentKeys);
+
+    // Build result
+    buildResultPreview($layout, $resultSize, $resultTable, $template);
+
+    //show the answers
+    buildResultContent($answersResultTable, $template, $layout, $assignmentKeys, $assignment);
+}#if
+
+// Output Template
+echo $template;
+//------------------------------------------------------------------------------
 
 
-//show the answers 
-$layoutFlip=array_flip($layout);
-ksort($layoutFlip);
-$count=0;
-$content .= "<table border=1><tr>\n";
-foreach ($layoutFlip as $key=>$value) {
-	$value--;
-	$opgaveKey=$opgaveKeys[$value];
-	if (is_int($count/6)){
-		$content .= "</tr><tr>\n";
-	}
-	$content .= "<td class=\"antwoorden\">$opgave[$opgaveKey]</td>\n";
-	$count++;
-}
-
-//show page footer
-$content .= "</tr></table>\n";
-$content .= "</body></html>\n";
-
-}
-echo $content;
 
 function getLayout ($id=null){
 	//add here more layout, on which position should the tile come, first is the tile number, second one the position
@@ -133,34 +110,143 @@ function getLayout ($id=null){
 	return $layout;
 }
 
-function showResultPreview($layout) {
-	global $resultSize;//veelvoud van 4
-	$content = '';
+function buildResultPreview($layout, $resultSize, DOMElement $tableNode, \Potherca\Template $template) {
 
-    $layoutFlip=array_flip($layout);
-	ksort($layoutFlip);
-	//flip rows..
-	$upperRow=array_slice($layoutFlip,6,6);
-	$lowerRow=array_slice($layoutFlip,0,6);
-	$allSlices=array_merge($upperRow,$lowerRow);
-	$count=0;
+    $allSlices = buildSlicesForLayout($layout);
 
-    $content .= "<table border=1><tr>\n";
+    addTilesToTableNode($allSlices, $resultSize, $tableNode, $template);
+}
 
-    foreach ($allSlices	 as $key=>$value) {
-		//	$value--;
-		if (is_int($count/6)){
-			$content .= "</tr><tr>\n";
-		}
-		createTile($resultSize,$value);
-		$content .= "<td class=\"result\"><img src=images/$value.png></td>\n";
-		$count++;
-	}
-
-	$content .= "</tr></table>\n";
-
-    return $content;
-} 
+function addTilesToTableNode($allSlices, $resultSize, DOMElement $tableNode, \Potherca\Template $template)
+{
+    $tableBodyNode = $tableNode->getElementsByTagName('tbody')->item(0);
+    $template->removeChildrenFromNode($tableBodyNode);
 
 
-?>
+    foreach ($allSlices as  $key => $value) {
+        if ($key % 6 === 0) {
+            // first cell of this row of 6
+            $currentRow = $template->createElement('tr');
+            $tableBodyNode->appendChild($currentRow);
+        }#if
+
+        createTile($resultSize, $value);
+
+        $tableCell = $template->createElement('td');
+        $tableCell->setAttribute('class', 'result');
+
+        $image = $template->createElement('img');
+        $image->setAttribute('src', 'images/'.$value.'.png');
+
+        /** @noinspection PhpUndefinedVariableInspection */
+        $currentRow->appendChild($tableCell);
+        $tableCell->appendChild($image);
+    }#foreach
+}
+
+function buildSlicesForLayout($layout)
+{
+    $layoutFlip = array_flip($layout);
+    ksort($layoutFlip);
+    //flip rows..
+    $upperRow = array_slice($layoutFlip, 6, 6);
+    $lowerRow = array_slice($layoutFlip, 0, 6);
+    $allSlices = array_merge($upperRow, $lowerRow);
+    return $allSlices;
+}
+
+function buildAssignmentContent($numberOfExercises, \Potherca\Template $template, \DOMElement $assignmentTable)
+{
+    $assignmentTableBody = $assignmentTable->getElementsByTagName('tbody')->item(0);
+    $template->removeChildrenFromNode($assignmentTableBody);
+
+    for ($i = 1; $i <= $numberOfExercises; $i++) {
+        // Add row to table
+        $currentRow = $template->createElement('tr');
+        $assignmentTableBody->appendChild($currentRow);
+
+        // Number
+        $numberCell = $template->createElement('td', $i);
+
+        // Assignment
+        $assignmentCell = $template->createElement('td');
+        $assignmentInputNode = $template->createElement('input');
+        $assignmentInputNode->setAttribute('type', 'text');
+        $assignmentInputNode->setAttribute('name', 'assignment[' . $i . ']');
+        $assignmentCell->appendChild($assignmentInputNode);
+
+        // Outcome
+        $outcomeCell = $template->createElement('td');
+        $outcomeInputNode = $template->createElement('input');
+        $outcomeInputNode->setAttribute('type', 'text');
+        $outcomeInputNode->setAttribute('name', 'outcome[' . $i . ']');
+        $outcomeCell->appendChild($outcomeInputNode);
+
+        // Add everything to the row
+        $currentRow->appendChild($numberCell);
+        $currentRow->appendChild($assignmentCell);
+        $currentRow->appendChild($outcomeCell);
+    }
+    #for
+}
+
+
+
+function buildResultContent(DOMElement $tableNode, \Potherca\Template $template, $layout, $assignmentKeys, $assignment)
+{
+    $tableBodyNode = $tableNode->getElementsByTagName('tbody')->item(0);
+    $template->removeChildrenFromNode($tableBodyNode);
+
+    $layoutFlip = array_flip($layout);
+    ksort($layoutFlip);
+    $count = 0;
+    foreach ($layoutFlip as $key => $value) {
+        $value--;
+        $assignmentKey = $assignmentKeys[$value];
+        if ($count % 6 === 0) {
+            $currentRow = $template->createElement('tr');
+            $tableBodyNode->appendChild($currentRow);
+        }
+
+        $tableCell = $template->createElement('td', $assignment[$assignmentKey]);
+        $tableCell->setAttribute('class', 'answer');
+
+        /** @noinspection PhpUndefinedVariableInspection */
+        $currentRow->appendChild($tableCell);
+
+        $count++;
+    }
+    #foreach
+}
+
+function buildAssignmentResult(DOMElement $tableNode, \Potherca\Template $template, $layout, $assignmentKeys)
+{
+    $tableBodyNode = $tableNode->getElementsByTagName('tbody')->item(0);
+    $template->removeChildrenFromNode($tableBodyNode);
+
+    foreach ($layout as $key => $value) {
+        if (($key - 1) % 6 === 0) {
+            $currentRow = $template->createElement('tr');
+            $tableBodyNode->appendChild($currentRow);
+        }#if
+
+        $tableCell = $template->createElement('td');
+        $tableCell->setAttribute('class', 'assignment');
+
+        $font = $template->createElement('span', $key . ')');
+        $font->setAttribute('class', 'number');
+
+        //        $content .= "<br><br>";
+        $center = $template->createElement('center', $assignmentKeys[$key - 1]);
+        //        $content .= "<br><br>";
+
+        $tableCell->appendChild($font);
+        $tableCell->appendChild($center);
+
+        /** @noinspection PhpUndefinedVariableInspection */
+        $currentRow->appendChild($tableCell);
+    }#foreach
+}
+
+
+#EOF

@@ -1,0 +1,135 @@
+/********( CSS Index )*********************************************************/
+/*
+	0. CSS Introduction
+	1. General Layout
+	2. Logo
+
+	EOF
+ */
+
+/********( CSS Introduction )**************************************************/
+/*
+*/
+
+/********( General Layout )**************************************************/
+td {
+    margin: 0;
+    padding: 0;
+}
+
+    td.assignment,
+    td.answer {
+        width: 251px;
+    position: relative;
+    }
+
+    td.assignment {
+        height: 100px;
+    }
+    td.answer {
+        height: 150px;
+    }
+
+        td.result img {
+            height: 100%;
+            width: 100%
+        }
+
+    td.answer {
+        text-align:center;
+    }
+
+    .assignment .number {
+        font-size: smaller;
+        position: absolute;
+        top: 0.5em;
+        left: 0.5em;
+    }
+
+.disclaimer {
+    width: 50%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.result-preview {
+    position: absolute;
+    right: 1em;
+    top: 1em;
+}
+
+.image-result td,
+.result-preview td {
+    width: 28px;
+    height: 28px;
+    font-size: 0;
+}
+/********( Mini Loco Logo )**************************************************/
+.logo {
+    position: absolute;
+    left: 1em;
+    top: -0.5em;
+    border: 1px solid;
+    padding: 0 0 0.5em 0.24em;
+}
+
+    .logo span,
+    .logo strong,
+    .logo em
+    {
+        display: block;
+        text-align: center;
+        float: left;
+        line-height: 0.4em;
+        padding: 0;
+        margin: 0;
+        font-family: sans-serif;
+        font-variant: small-caps;
+        font-weight: bold;
+    }
+
+    .logo em {
+        float: left;
+        position: absolute;
+        bottom: 0.35em;
+        font-size: 0.7em;
+        font-variant: normal;
+        font-style: italic;
+    }
+
+    .logo strong {
+        background: #f02;
+        color: #FFF;
+        font-size: 1.75em;
+        padding: 0.3em;
+        line-height: 0.1em;
+        margin-left: -0.125em;
+    }
+
+    .logo span {
+        border: 0.1em solid;
+        width: 0.6em;
+        height: 0.6em;
+        position: relative;
+        top: -0.3em;
+        background-color: #FFF;
+    }
+
+    .logo .blue {
+        color: #8ff;
+        clear: left;
+        top: -0.15em;
+    }
+
+    .logo .orange {
+        color: #f82;
+    }
+
+    .logo .red {
+        color: #f02;
+    }
+
+    .logo .green {
+        color: #8f2;
+        top: -0.15em;
+    }
