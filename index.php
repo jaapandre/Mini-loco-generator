@@ -36,10 +36,10 @@ if (empty($_POST['assignment'])){
     $assignmentTable = $template->getFirstElementWithClassName('assignment');
 
     // Build preview
-    $generator->buildResultPreview($resultTable);
+    $generator->populateResultPreview($resultTable);
 
     // Add Assignment Form to Template
-    $generator->buildAssignmentContent($assignmentTable);
+    $generator->populateAssignmentContent($assignmentTable);
 } else {
     //input so display result
 
@@ -54,13 +54,13 @@ if (empty($_POST['assignment'])){
     $answersResultTable = $template->getFirstElementWithClassName('answers-result');
 
     // Add Assignment Result to Template
-    $generator->buildAssignmentResult($assignmentResultTable);
+    $generator->populateAssignmentResult($assignmentResultTable);
 
     // Build result
-    $generator->buildResultPreview($resultTable);
+    $generator->populateResultPreview($resultTable);
 
     //show the answers
-    $generator->buildResultContent($answersResultTable);
+    $generator->populateResultContent($answersResultTable);
 }#if
 
 // Output Template
@@ -110,7 +110,7 @@ class Generator
         return $this->layouts[array_rand($this->layouts)];
     }
 
-    function buildResultPreview(DOMElement $tableNode) {
+    function populateResultPreview(DOMElement $tableNode) {
 
         $allSlices = $this->buildSlicesForLayout();
 
@@ -165,7 +165,7 @@ class Generator
         return $allSlices;
     }
 
-    function buildAssignmentContent(\DOMElement $assignmentTable)
+    function populateAssignmentContent(\DOMElement $assignmentTable)
     {
         $numberOfExercises = $this->getNumberOfExercises();
 
@@ -207,7 +207,7 @@ class Generator
     }
 
 
-    function buildResultContent(DOMElement $tableNode)
+    function populateResultContent(DOMElement $tableNode)
     {
         $layout = $this->getLayout();
         $template = $tableNode->ownerDocument;
@@ -240,7 +240,7 @@ class Generator
         #foreach
     }
 
-    function buildAssignmentResult(DOMElement $tableNode)
+    function populateAssignmentResult(DOMElement $tableNode)
     {
         $assignmentKeys = $this->getAssignmentKeys();
 
