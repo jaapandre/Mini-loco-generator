@@ -46,8 +46,25 @@ namespace Potherca
         static public function fromFile($p_sFile)
         {
             $oTemplate = new static();
+            $oTemplate->formatOutput = true;
             $oTemplate->loadHTMLFile($p_sFile);
             return $oTemplate;
+        }
+
+        /**
+         * @param $p_sClassName
+         *
+         * @return \DOMNode|null
+         */
+        public function getFirstElementWithClassName($p_sClassName)
+        {
+            $node = null;
+            $DOMNodeList = $this->getElementsByClassName($p_sClassName);
+            if($DOMNodeList->length > 0){
+                $node = $DOMNodeList->item(0);
+            }
+
+            return $node;
         }
 
         /**
@@ -66,6 +83,7 @@ namespace Potherca
          */
         function removeChildrenFromNode(\DOMNode $DomNode)
         {
+            //@TODO: Add removed children to a DOMNodeList and return that.
             if ($DomNode->hasChildNodes()) {
                 $childNodes = $DomNode->childNodes;
 
