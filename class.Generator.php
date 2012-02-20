@@ -212,13 +212,13 @@ class Generator
             $tableCell = $template->createElementWithAttributes(
                   'td'
                 , null
-                , array('class', 'result')
+                , array('class' => 'result')
             );
 
             $image = $template->createElementWithAttributes(
                  'img'
                 , null
-                , array('src', 'images/'.$value.'.png')
+                , array('src' => 'images/'.$value.'.png')
             );
 
             $tableCell->appendChild($image);
