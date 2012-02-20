@@ -93,6 +93,17 @@ namespace Potherca
             }#if
         }
 
+        public function createElementWithAttributes($attributeName, $value = null, array $attributes)
+        {
+            $DomElement = $this->createElement($attributeName, $value);
+
+            foreach($attributes as $attributeName => $attributeValue){
+                $DomElement->setAttribute($attributeName, $attributeValue);
+            }#foreach
+
+            return $DomElement;
+        }
+
         /**
          * @return string
          */

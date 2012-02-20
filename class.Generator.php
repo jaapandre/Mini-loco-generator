@@ -101,6 +101,7 @@ class Generator
         $assignmentKeys = $this->getAssignmentKeys();
 
         $layout = $this->getLayout();
+        /** @var $template \Potherca\Template */
         $template = $tableNode->ownerDocument;
 
         $tableBodyNode = $tableNode->getElementsByTagName('tbody')->item(0);
@@ -113,15 +114,19 @@ class Generator
                 $tableBodyNode->appendChild($currentRow);
             }#if
 
-            $tableCell = $template->createElement('td');
-            $tableCell->setAttribute('class', 'assignment');
+            $tableCell = $template->createElementWithAttributes(
+                'td'
+                , null
+                , array('class' => 'assignment')
+            );
 
-            $font = $template->createElement('span', $key . ')');
-            $font->setAttribute('class', 'number');
+            $font = $template->createElementWithAttributes(
+                  'span'
+                , $key . ')'
+                , array('class' => 'number')
+            );
 
-            //        $content .= "<br><br>";
             $center = $template->createElement('center', $assignmentKeys[$key - 1]);
-            //        $content .= "<br><br>";
 
             $tableCell->appendChild($font);
             $tableCell->appendChild($center);
@@ -134,6 +139,7 @@ class Generator
     public function populateResultContent(DOMElement $tableNode)
     {
         $layout = $this->getLayout();
+        /** @var $template \Potherca\Template */
         $template = $tableNode->ownerDocument;
         $assignment = $this->getAssignment();
         $assignmentKeys = $this->getAssignmentKeys();
@@ -152,8 +158,11 @@ class Generator
                 $tableBodyNode->appendChild($currentRow);
             }#if
 
-            $tableCell = $template->createElement('td', $assignment[$assignmentKey]);
-            $tableCell->setAttribute('class', 'answer');
+            $tableCell = $template->createElementWithAttributes(
+                  'td'
+                , $assignment[$assignmentKey]
+                , array('class' => 'answer')
+            );
 
             /** @noinspection PhpUndefinedVariableInspection */
             $currentRow->appendChild($tableCell);
@@ -183,6 +192,7 @@ class Generator
     {
         $resultSize = $this->getResultSize();
 
+        /** @var $template \Potherca\Template */
         $template = $tableNode->ownerDocument;
 
         $tableBodyNode = $tableNode->getElementsByTagName('tbody')->item(0);
@@ -199,16 +209,21 @@ class Generator
 
             createTile($resultSize, $value);
 
-            // @TODO: $tableCell and $image should be created outside of the loop and cloned here as the only thing that changes is the images "src" attribute
-            $tableCell = $template->createElement('td');
-            $tableCell->setAttribute('class', 'result');
+            $tableCell = $template->createElementWithAttributes(
+                  'td'
+                , null
+                , array('class', 'result')
+            );
 
-            $image = $template->createElement('img');
-            $image->setAttribute('src', 'images/'.$value.'.png');
+            $image = $template->createElementWithAttributes(
+                 'img'
+                , null
+                , array('src', 'images/'.$value.'.png')
+            );
 
+            $tableCell->appendChild($image);
             /** @noinspection PhpUndefinedVariableInspection */
             $currentRow->appendChild($tableCell);
-            $tableCell->appendChild($image);
         }#foreach
     }
 
