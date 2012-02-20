@@ -21,7 +21,7 @@ require 'class.Generator.php';
 $generator = new Generator();
 //------------------------------------------------------------------------------
 // Load Template
-$template = \Potherca\Template::fromFile('index.template.html');
+$template = Template::fromFile('index.template.html');
 // Build Relevant Content Blocks
 
 if (empty($_POST['assignment'])){

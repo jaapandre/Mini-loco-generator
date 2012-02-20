@@ -101,9 +101,10 @@ class Generator
         $assignmentKeys = $this->getAssignmentKeys();
 
         $layout = $this->getLayout();
-        /** @var $template \Potherca\Template */
+        /** @var $template Template */
         $template = $tableNode->ownerDocument;
 
+        /** @var $tableBodyNode DOMElement */
         $tableBodyNode = $tableNode->getElementsByTagName('tbody')->item(0);
         /** @noinspection PhpUndefinedMethodInspection Method removeChildrenFromNode() is defined in the Template Class*/
         $template->removeChildrenFromNode($tableBodyNode);
@@ -139,11 +140,12 @@ class Generator
     public function populateResultContent(DOMElement $tableNode)
     {
         $layout = $this->getLayout();
-        /** @var $template \Potherca\Template */
+        /** @var $template Template */
         $template = $tableNode->ownerDocument;
         $assignment = $this->getAssignment();
         $assignmentKeys = $this->getAssignmentKeys();
 
+        /** @var $tableBodyNode DOMElement */
         $tableBodyNode = $tableNode->getElementsByTagName('tbody')->item(0);
         /** @noinspection PhpUndefinedMethodInspection Method removeChildrenFromNode() is defined in the Template Class*/
         $template->removeChildrenFromNode($tableBodyNode);
@@ -192,9 +194,10 @@ class Generator
     {
         $resultSize = $this->getResultSize();
 
-        /** @var $template \Potherca\Template */
+        /** @var $template Template */
         $template = $tableNode->ownerDocument;
 
+        /** @var $tableBodyNode DOMElement */
         $tableBodyNode = $tableNode->getElementsByTagName('tbody')->item(0);
         /** @noinspection PhpUndefinedMethodInspection Method removeChildrenFromNode() is defined in the Template Class*/
         $template->removeChildrenFromNode($tableBodyNode);
