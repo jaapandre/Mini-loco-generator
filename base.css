@@ -41,8 +41,8 @@ td {
 
     .assignment .number {
         font-size: smaller;
-        position: absolute;
-        top: 0.5em;
+        position: relative;
+        top: -2em;
         left: 0.5em;
     }
 
