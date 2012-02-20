@@ -21,7 +21,7 @@ require 'class.Generator.php';
 $generator = new Generator();
 //------------------------------------------------------------------------------
 // Load Template
-$template = \Potherca\Template::fromFile('index.template.html');
+$template = Template::fromFile('index.template.html');
 // Build Relevant Content Blocks
 
 if (empty($_POST['assignment'])){
@@ -38,9 +38,6 @@ if (empty($_POST['assignment'])){
 
     // Build preview
     $generator->populateResultPreview($resultTable);
-
-    // Add Assignment Form to Template
-    $generator->populateAssignmentContent($assignmentTable);
 } else {
     //input so display result
 

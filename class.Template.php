@@ -1,112 +1,127 @@
 <?php
-namespace Potherca
+
+class Template extends DOMDocument
 {
+    /**
+     * @var DomXPath
+     */
+    protected $m_oFinder;
 
-    class Template extends \DOMDocument
+    /**
+     * @return DomXPath
+     */
+    public function getFinder()
     {
-        /**
-         * @var \DomXPath
-         */
-        protected $m_oFinder;
-
-        /**
-         * @return \DomXPath
-         */
-        public function getFinder()
+        if(!isset($this->m_oFinder))
         {
-            if(!isset($this->m_oFinder))
-            {
-                $this->m_oFinder = new \DomXPath($this);
-            }#if
+            $this->m_oFinder = new DomXPath($this);
+        }#if
 
-            return $this->m_oFinder;
+        return $this->m_oFinder;
+    }
+
+    /**
+     * @return DOMElement
+     */
+    public function getHead()
+    {
+        return $this->getElementsByTagName('head')->item(0);
+    }
+
+    /**
+     * @return DOMElement
+     */
+    public function getBody()
+    {
+        return $this->getElementsByTagName('body')->item(0);
+    }
+
+    /**
+     * @param string $p_sFile
+     *
+     * @return self
+     */
+    static public function fromFile($p_sFile)
+    {
+        $oTemplate = new static();
+        $oTemplate->formatOutput = true;
+        $oTemplate->loadHTMLFile($p_sFile);
+        return $oTemplate;
+    }
+
+    /**
+     * @param $p_sClassName
+     *
+     * @return DOMElement|null
+     */
+    public function getFirstElementWithClassName($p_sClassName)
+    {
+        $node = null;
+        $DOMNodeList = $this->getElementsByClassName($p_sClassName);
+        if($DOMNodeList->length > 0){
+            $node = $DOMNodeList->item(0);
         }
 
-        /**
-         * @return \DOMNode
-         */
-        public function getHead()
-        {
-            return $this->getElementsByTagName('head')->item(0);
-        }
+        return $node;
+    }
 
-        /**
-         * @return \DOMNode
-         */
-        public function getBody()
-        {
-            return $this->getElementsByTagName('body')->item(0);
-        }
+    /**
+     * @param $p_sClassName
+     *
+     * @return DOMNodeList
+     */
+    public function getElementsByClassName($p_sClassName)
+    {
+        //@FIXME: The XPath is not stringent enough. If you look for class 'foo' then class "bar foobar" will also be returned
+        return $this->getFinder()->query("//*[contains(@class, '$p_sClassName')]");
+    }
 
-        /**
-         * @param string $p_sFile
-         *
-         * @return Template
-         */
-        static public function fromFile($p_sFile)
-        {
-            $oTemplate = new static();
-            $oTemplate->formatOutput = true;
-            $oTemplate->loadHTMLFile($p_sFile);
-            return $oTemplate;
-        }
+    /**
+     * @param DOMElement $DomNode
+     */
+    function removeChildrenFromNode(DOMElement $DomNode)
+    {
+        //@TODO: Add removed children to a DOMNodeList and return that.
+        if ($DomNode->hasChildNodes()) {
+            $childNodes = $DomNode->childNodes;
 
-        /**
-         * @param $p_sClassName
-         *
-         * @return \DOMNode|null
-         */
-        public function getFirstElementWithClassName($p_sClassName)
-        {
-            $node = null;
-            $DOMNodeList = $this->getElementsByClassName($p_sClassName);
-            if($DOMNodeList->length > 0){
-                $node = $DOMNodeList->item(0);
-            }
+            while ($childNodes->length > 0) {
+                $DomNode->removeChild($childNodes->item(0));
+            }#while
+        }#if
+    }
 
-            return $node;
-        }
+    /**
+     * @param string $attributeName
+     * @param string $value
+     * @param array  $attributes
+     *
+     * @return DOMElement
+     */
+    public function createElementWithAttributes($attributeName, $value = null, array $attributes)
+    {
+        $DomElement = $this->createElement($attributeName, $value);
 
-        /**
-         * @param $p_sClassName
-         *
-         * @return \DOMNodeList
-         */
-        public function getElementsByClassName($p_sClassName)
-        {
-            //@FIXME: The XPath is not stringent enough. If you look for class 'foo' then class "bar foobar" will also be returned
-            return $this->getFinder()->query("//*[contains(@class, '$p_sClassName')]");
-        }
+        foreach($attributes as $attributeName => $attributeValue){
+            $DomElement->setAttribute($attributeName, $attributeValue);
+        }#foreach
 
-        /**
-         * @param \DOMNode $DomNode
-         */
-        function removeChildrenFromNode(\DOMNode $DomNode)
-        {
-            //@TODO: Add removed children to a DOMNodeList and return that.
-            if ($DomNode->hasChildNodes()) {
-                $childNodes = $DomNode->childNodes;
+        return $DomElement;
+    }
 
-                while ($childNodes->length > 0) {
-                    $DomNode->removeChild($childNodes->item(0));
-                }#while
-            }#if
-        }
+    /**
+     * @return string
+     */
+    public function __toString() {
+        return $this->toString();
+    }
 
-        /**
-         * @return string
-         */
-        public function __toString() {
-            return $this->toString();
-        }
-
-        /**
-         * @return string
-         */
-        public function toString()
-        {
-            return $this->saveHTML();
-        }
+    /**
+     * @return string
+     */
+    public function toString()
+    {
+        return $this->saveHTML();
     }
 }
 

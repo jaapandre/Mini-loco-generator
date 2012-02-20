@@ -16,6 +16,7 @@
 
 class Generator
 {
+////////////////////////////////// PROPERTIES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     protected $numberOfExercises=12;
 
     protected $resultSize=28; // multiple of 4
@@ -35,190 +36,19 @@ class Generator
 
     protected $assignment;
 
-    function fetchAssignmentArray()
+////////////////////////////// GETTERS AND SETTERS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public function getRandomLayout()
     {
-        $assignment = array();
-
-        $assignmentTemp = $_POST['assignment'];
-        $outcomeTemp = $_POST['outcome'];
-
-        for ($i = 1; $i <= $this->getNumberOfExercises(); $i++) {
-            $tempAssignment = $assignmentTemp[$i];
-            $tempOutcome = $outcomeTemp[$i];
-            //@FIXME: This creates a bug where, if two or more assignment have the same value, we overwrite $assignmentKeys and reduce the actual amount of keys available later on (also messing up the order.
-            $assignment[$tempAssignment] = $tempOutcome;
-        }#for
-
-        return $assignment;
-    }
-
-    function getRandomLayout(){
         return $this->layouts[array_rand($this->layouts)];
     }
 
-    function populateResultPreview(DOMElement $tableNode) {
-
-        $allSlices = $this->buildSlicesForLayout();
-
-        $this->addTilesToTableNode($allSlices, $tableNode);
-    }
-
-    function addTilesToTableNode($allSlices, DOMElement $tableNode)
+    public function getAssignment()
     {
-        $resultSize = $this->getResultSize();
+        if(!isset($this->assignment)){
+            $this->assignment = $this->fetchAssignmentArray();
+        }#if
 
-        $template = $tableNode->ownerDocument;
-
-        $tableBodyNode = $tableNode->getElementsByTagName('tbody')->item(0);
-        /** @noinspection PhpUndefinedMethodInspection Method removeChildrenFromNode() is defined in the Template Class*/
-        $template->removeChildrenFromNode($tableBodyNode);
-
-
-        foreach ($allSlices as  $key => $value) {
-            if ($key % 6 === 0) {
-                // first cell of this row of 6
-                $currentRow = $template->createElement('tr');
-                $tableBodyNode->appendChild($currentRow);
-            }#if
-
-            createTile($resultSize, $value);
-
-            // @TODO: $tableCell and $image should be created outside of the loop and cloned here as the only thing that changes is the images "src" attribute
-            $tableCell = $template->createElement('td');
-            $tableCell->setAttribute('class', 'result');
-
-            $image = $template->createElement('img');
-            $image->setAttribute('src', 'images/'.$value.'.png');
-
-            /** @noinspection PhpUndefinedVariableInspection */
-            $currentRow->appendChild($tableCell);
-            $tableCell->appendChild($image);
-        }#foreach
-    }
-
-    function buildSlicesForLayout()
-    {
-        $layout = $this->getLayout();
-
-        $layoutFlip = array_flip($layout);
-        ksort($layoutFlip);
-        //flip rows..
-        $upperRow = array_slice($layoutFlip, 6, 6);
-        $lowerRow = array_slice($layoutFlip, 0, 6);
-
-        $allSlices = array_merge($upperRow, $lowerRow);
-
-        return $allSlices;
-    }
-
-    function populateAssignmentContent(\DOMElement $assignmentTable)
-    {
-        $numberOfExercises = $this->getNumberOfExercises();
-
-        $template = $assignmentTable->ownerDocument;
-
-        $assignmentTableBody = $assignmentTable->getElementsByTagName('tbody')->item(0);
-        /** @noinspection PhpUndefinedMethodInspection Method removeChildrenFromNode() is defined in the Template Class*/
-        $template->removeChildrenFromNode($assignmentTableBody);
-
-        for ($i = 1; $i <= $numberOfExercises; $i++) {
-            // Add row to table
-            $currentRow = $template->createElement('tr');
-            $assignmentTableBody->appendChild($currentRow);
-
-            // Number
-            $numberCell = $template->createElement('td', $i);
-
-            // @TODO: $assignmentCell and it's contents should be created outside of the loop and cloned here as the only thing that changes is the inputs "name" attribute
-            // Assignment
-            $assignmentCell = $template->createElement('td');
-            $assignmentInputNode = $template->createElement('input');
-            $assignmentInputNode->setAttribute('type', 'text');
-            $assignmentInputNode->setAttribute('name', 'assignment[' . $i . ']');
-            $assignmentCell->appendChild($assignmentInputNode);
-
-            // Outcome
-            $outcomeCell = $template->createElement('td');
-            $outcomeInputNode = $template->createElement('input');
-            $outcomeInputNode->setAttribute('type', 'text');
-            $outcomeInputNode->setAttribute('name', 'outcome[' . $i . ']');
-            $outcomeCell->appendChild($outcomeInputNode);
-
-            // Add everything to the row
-            $currentRow->appendChild($numberCell);
-            $currentRow->appendChild($assignmentCell);
-            $currentRow->appendChild($outcomeCell);
-        }
-        #for
-    }
-
-
-    function populateResultContent(DOMElement $tableNode)
-    {
-        $layout = $this->getLayout();
-        $template = $tableNode->ownerDocument;
-        $assignment = $this->getAssignment();
-        $assignmentKeys = $this->getAssignmentKeys();
-
-        $tableBodyNode = $tableNode->getElementsByTagName('tbody')->item(0);
-        /** @noinspection PhpUndefinedMethodInspection Method removeChildrenFromNode() is defined in the Template Class*/
-        $template->removeChildrenFromNode($tableBodyNode);
-
-        $layoutFlip = array_flip($layout);
-        ksort($layoutFlip);
-        $count = 0;
-        foreach ($layoutFlip as $key => $value) {
-            $value--;
-            $assignmentKey = $assignmentKeys[$value];
-            if ($count % 6 === 0) {
-                $currentRow = $template->createElement('tr');
-                $tableBodyNode->appendChild($currentRow);
-            }
-
-            $tableCell = $template->createElement('td', $assignment[$assignmentKey]);
-            $tableCell->setAttribute('class', 'answer');
-
-            /** @noinspection PhpUndefinedVariableInspection */
-            $currentRow->appendChild($tableCell);
-
-            $count++;
-        }
-        #foreach
-    }
-
-    function populateAssignmentResult(DOMElement $tableNode)
-    {
-        $assignmentKeys = $this->getAssignmentKeys();
-
-        $layout = $this->getLayout();
-        $template = $tableNode->ownerDocument;
-
-        $tableBodyNode = $tableNode->getElementsByTagName('tbody')->item(0);
-        /** @noinspection PhpUndefinedMethodInspection Method removeChildrenFromNode() is defined in the Template Class*/
-        $template->removeChildrenFromNode($tableBodyNode);
-
-        foreach ($layout as $key => $value) {
-            if (($key - 1) % 6 === 0) {
-                $currentRow = $template->createElement('tr');
-                $tableBodyNode->appendChild($currentRow);
-            }#if
-
-            $tableCell = $template->createElement('td');
-            $tableCell->setAttribute('class', 'assignment');
-
-            $font = $template->createElement('span', $key . ')');
-            $font->setAttribute('class', 'number');
-
-            //        $content .= "<br><br>";
-            $center = $template->createElement('center', $assignmentKeys[$key - 1]);
-            //        $content .= "<br><br>";
-
-            $tableCell->appendChild($font);
-            $tableCell->appendChild($center);
-
-            /** @noinspection PhpUndefinedVariableInspection */
-            $currentRow->appendChild($tableCell);
-        }#foreach
+        return $this->assignment;
     }
 
     protected function getAssignmentKeys()
@@ -257,12 +87,163 @@ class Generator
         return $this->layout;
     }
 
-    public function getAssignment()
+////////////////////////////////// PUBLIC API \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public function populateResultPreview(DOMElement $tableNode)
     {
-        if(!isset($this->assignment)){
-            $this->assignment = $this->fetchAssignmentArray();
-        }#if
 
-        return $this->assignment;
+        $allSlices = $this->buildSlicesForLayout();
+
+        $this->addTilesToTableNode($allSlices, $tableNode);
+    }
+
+    public function populateAssignmentResult(DOMElement $tableNode)
+    {
+        $assignmentKeys = $this->getAssignmentKeys();
+
+        $layout = $this->getLayout();
+        /** @var $template Template */
+        $template = $tableNode->ownerDocument;
+
+        /** @var $tableBodyNode DOMElement */
+        $tableBodyNode = $tableNode->getElementsByTagName('tbody')->item(0);
+        /** @noinspection PhpUndefinedMethodInspection Method removeChildrenFromNode() is defined in the Template Class*/
+        $template->removeChildrenFromNode($tableBodyNode);
+
+        foreach ($layout as $key => $value) {
+            if (($key - 1) % 6 === 0) {
+                $currentRow = $template->createElement('tr');
+                $tableBodyNode->appendChild($currentRow);
+            }#if
+
+            $tableCell = $template->createElementWithAttributes(
+                'td'
+                , null
+                , array('class' => 'assignment')
+            );
+
+            $font = $template->createElementWithAttributes(
+                  'span'
+                , $key . ')'
+                , array('class' => 'number')
+            );
+
+            $center = $template->createElement('center', $assignmentKeys[$key - 1]);
+
+            $tableCell->appendChild($font);
+            $tableCell->appendChild($center);
+
+            /** @noinspection PhpUndefinedVariableInspection */
+            $currentRow->appendChild($tableCell);
+        }#foreach
+    }
+
+    public function populateResultContent(DOMElement $tableNode)
+    {
+        $layout = $this->getLayout();
+        /** @var $template Template */
+        $template = $tableNode->ownerDocument;
+        $assignment = $this->getAssignment();
+        $assignmentKeys = $this->getAssignmentKeys();
+
+        /** @var $tableBodyNode DOMElement */
+        $tableBodyNode = $tableNode->getElementsByTagName('tbody')->item(0);
+        /** @noinspection PhpUndefinedMethodInspection Method removeChildrenFromNode() is defined in the Template Class*/
+        $template->removeChildrenFromNode($tableBodyNode);
+
+        $layoutFlip = array_flip($layout);
+        ksort($layoutFlip);
+        foreach ($layoutFlip as $key => $value) {
+            $value--;
+            $assignmentKey = $assignmentKeys[$value];
+            if (($key-1) % 6 === 0) {
+                $currentRow = $template->createElement('tr');
+                $tableBodyNode->appendChild($currentRow);
+            }#if
+
+            $tableCell = $template->createElementWithAttributes(
+                  'td'
+                , $assignment[$assignmentKey]
+                , array('class' => 'answer')
+            );
+
+            /** @noinspection PhpUndefinedVariableInspection */
+            $currentRow->appendChild($tableCell);
+        }#foreach
+    }
+
+
+//////////////////////////////// HELPER METHODS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    function fetchAssignmentArray()
+    {
+        $assignment = array();
+
+        $assignmentTemp = $_POST['assignment'];
+        $outcomeTemp = $_POST['outcome'];
+
+        for ($i = 1; $i <= $this->getNumberOfExercises(); $i++) {
+            $tempAssignment = $assignmentTemp[$i];
+            $tempOutcome = $outcomeTemp[$i];
+            //@FIXME: This creates a bug where, if two or more assignment have the same value, we overwrite $assignmentKeys and reduce the actual amount of keys available later on (also messing up the order.
+            $assignment[$tempAssignment] = $tempOutcome;
+        }#for
+
+        return $assignment;
+    }
+
+    function addTilesToTableNode($allSlices, DOMElement $tableNode)
+    {
+        $resultSize = $this->getResultSize();
+
+        /** @var $template Template */
+        $template = $tableNode->ownerDocument;
+
+        /** @var $tableBodyNode DOMElement */
+        $tableBodyNode = $tableNode->getElementsByTagName('tbody')->item(0);
+        /** @noinspection PhpUndefinedMethodInspection Method removeChildrenFromNode() is defined in the Template Class*/
+        $template->removeChildrenFromNode($tableBodyNode);
+
+
+        foreach ($allSlices as  $key => $value) {
+            if ($key % 6 === 0) {
+                // first cell of this row of 6
+                $currentRow = $template->createElement('tr');
+                $tableBodyNode->appendChild($currentRow);
+            }#if
+
+            createTile($resultSize, $value);
+
+            $tableCell = $template->createElementWithAttributes(
+                  'td'
+                , null
+                , array('class' => 'result')
+            );
+
+            $image = $template->createElementWithAttributes(
+                 'img'
+                , null
+                , array('src' => 'images/'.$value.'.png')
+            );
+
+            $tableCell->appendChild($image);
+            /** @noinspection PhpUndefinedVariableInspection */
+            $currentRow->appendChild($tableCell);
+        }#foreach
+    }
+
+    function buildSlicesForLayout()
+    {
+        $layout = $this->getLayout();
+
+        $layoutFlip = array_flip($layout);
+        ksort($layoutFlip);
+        //flip rows..
+        $upperRow = array_slice($layoutFlip, 6, 6);
+        $lowerRow = array_slice($layoutFlip, 0, 6);
+
+        $allSlices = array_merge($upperRow, $lowerRow);
+
+        return $allSlices;
     }
 }
+
+#EOF
