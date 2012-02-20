@@ -96,47 +96,6 @@ class Generator
         $this->addTilesToTableNode($allSlices, $tableNode);
     }
 
-    public function populateAssignmentContent(\DOMElement $assignmentTable)
-    {
-        $numberOfExercises = $this->getNumberOfExercises();
-
-        $template = $assignmentTable->ownerDocument;
-
-        $assignmentTableBody = $assignmentTable->getElementsByTagName('tbody')->item(0);
-        /** @noinspection PhpUndefinedMethodInspection Method removeChildrenFromNode() is defined in the Template Class*/
-        $template->removeChildrenFromNode($assignmentTableBody);
-
-        for ($i = 1; $i <= $numberOfExercises; $i++) {
-            // Add row to table
-            $currentRow = $template->createElement('tr');
-            $assignmentTableBody->appendChild($currentRow);
-
-            // Number
-            $numberCell = $template->createElement('td', $i);
-
-            // @TODO: $assignmentCell and it's contents should be created outside of the loop and cloned here as the only thing that changes is the inputs "name" attribute
-            // Assignment
-            $assignmentCell = $template->createElement('td');
-            $assignmentInputNode = $template->createElement('input');
-            $assignmentInputNode->setAttribute('type', 'text');
-            $assignmentInputNode->setAttribute('name', 'assignment[' . $i . ']');
-            $assignmentCell->appendChild($assignmentInputNode);
-
-            // Outcome
-            $outcomeCell = $template->createElement('td');
-            $outcomeInputNode = $template->createElement('input');
-            $outcomeInputNode->setAttribute('type', 'text');
-            $outcomeInputNode->setAttribute('name', 'outcome[' . $i . ']');
-            $outcomeCell->appendChild($outcomeInputNode);
-
-            // Add everything to the row
-            $currentRow->appendChild($numberCell);
-            $currentRow->appendChild($assignmentCell);
-            $currentRow->appendChild($outcomeCell);
-        }
-        #for
-    }
-
     public function populateAssignmentResult(DOMElement $tableNode)
     {
         $assignmentKeys = $this->getAssignmentKeys();

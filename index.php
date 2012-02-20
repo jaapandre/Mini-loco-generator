@@ -38,9 +38,6 @@ if (empty($_POST['assignment'])){
 
     // Build preview
     $generator->populateResultPreview($resultTable);
-
-    // Add Assignment Form to Template
-    $generator->populateAssignmentContent($assignmentTable);
 } else {
     //input so display result
 
