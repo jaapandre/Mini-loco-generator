@@ -186,7 +186,7 @@ class Generator
             //@FIXME: This creates a bug where, if two or more assignment have the same value, we overwrite $assignmentKeys and reduce the actual amount of keys available later on (also messing up the order.
             $assignment[$tempAssignment] = $tempOutcome;
         }#for
-
+        shuffle_assoc($assignment);
         return $assignment;
     }
 
